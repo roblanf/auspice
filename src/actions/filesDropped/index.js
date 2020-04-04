@@ -1,5 +1,6 @@
-import { warningNotification } from "../notifications";
+import { warningNotification, successNotification } from "../notifications";
 import handleMetadata from "./metadata";
+import handleLocalMetadata from "./localMetadata";
 import { is_csv_or_tsv } from "./constants";
 
 
@@ -17,15 +18,22 @@ const handleFilesDropped = (files) => (dispatch, getState) => {
   }
 
   const file = files[0];
-
-  if (is_csv_or_tsv(file)) {
-    return handleMetadata(dispatch, getState, file);
+  if (file.name == "custom_data.csv") {
+    console.log("file.name: " + file.name)
+    return handleLocalMetadata(dispatch, getState, file);
+    // return dispatch(successNotification({
+    //   message: `${file.name} is successfully added`,
+    //   details: `HAHAHA`
+    // }));
+  } else {
+    if (is_csv_or_tsv(file)) {
+      return handleMetadata(dispatch, getState, file);
+    }
+    return dispatch(warningNotification({
+      message: `Cannot parse ${file.name}`,
+      details: `Currently only CSV & TSV files are allowed, not ${file.type}`
+    }));
   }
-
-  return dispatch(warningNotification({
-    message: `Cannot parse ${file.name}`,
-    details: `Currently only CSV & TSV files are allowed, not ${file.type}`
-  }));
 };
 
 export default handleFilesDropped;

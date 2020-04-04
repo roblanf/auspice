@@ -23,6 +23,8 @@ import Spinner from "../framework/spinner";
 import MainDisplayMarkdown from "../narrative/MainDisplayMarkdown";
 import MobileNarrativeDisplay from "../narrative/MobileNarrativeDisplay";
 
+import LocalDataset from "../localDataset/localDataset";
+
 const Entropy = lazy(() => import("../entropy"));
 const Frequencies = lazy(() => import("../frequencies"));
 
@@ -146,6 +148,7 @@ class Main extends React.Component {
             </Suspense>) :
             null
           }
+          <LocalDataset/>
           {this.props.displayNarrative|| this.props.showOnlyPanels ? null : <Footer width={calcUsableWidth(availableWidth, 1)} />}
           {this.props.displayNarrative && this.props.panelsToDisplay.includes("EXPERIMENTAL_MainDisplayMarkdown") ?
             <MainDisplayMarkdown width={calcUsableWidth(availableWidth, 1)}/> :

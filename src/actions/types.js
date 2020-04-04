@@ -51,3 +51,6 @@ export const CHANGE_ZOOM = "CHANGE_ZOOM";
 export const SET_AVAILABLE = "SET_AVAILABLE";
 export const TOGGLE_SIDEBAR = "TOGGLE_SIDEBAR";
 export const TOGGLE_LEGEND = "TOGGLE_LEGEND";
+
+// New types
+export const UPLOAD_LOCAL_CSV = "UPLOAD_LOCAL_CSV";
