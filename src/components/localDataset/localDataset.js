@@ -1,43 +1,43 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import { connect } from "react-redux";
-import {selectLocalData} from "../../actions/localDataset";
+// import {selectLocalData} from "../../actions/localDataset";
 
-@connect((state) => ({
-  localDataset: state.localDataset
-}))
+// import {handleLocalMetadata} from "../../actions/filesDropped/localMetadata";
+
+@connect((state) => {
+  console.log("state: ", state);
+  return {
+    csvData: state.csvData
+  };
+})
 class localDataset extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state = {
-  //     scrollLeft: 0,
-  //     scrollTop: 0
-  //   };
-  //   this.data = [
-  //     ["", "Ford", "Volvo", "Toyota", "Honda"],
-  //     ["2016", 10, 11, 12, 13],
-  //     ["2017", 20, 11, 14, 13],
-  //     ["2018", 30, 15, 12, 13]
-  //   ];
-  // }
-
+  constructor(props) {
+    super(props);
+  }
+  static propTypes = {
+    csvData: PropTypes.array.isRequired
+  }
+  
   createListItems() {
-    return this.props.localDataset.map((user) => {
+    console.log("this.props.csvData: ", this.props.csvData);
+
+    return this.props.csvData.map((selectItem) => {
       return (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-        <li key={user.id}
-          onClick={() => this.props.dispatch(selectLocalData(user))}
-        >{user.first} {user.last}</li>
+        <li>1</li>
+        // <li key={selectItem.id}>1</li>
       );
     });
   }
-
+  // onClick={() => this.props.dispatch(selectLocalData(selectItem))}
   render() {
     return (
       <div>
         <h1> localDataset!!!  </h1>
         <ul>
-          {this.createListItems()}
+          {/* {this.createListItems()} */}
         </ul>
         {/* <div id="hot-app">
           <HotTable data={this.data} colHeaders={true} rowHeaders={true} width="600" height="300" />

@@ -10,6 +10,7 @@ import narrative from "./narrative";
 import treeToo from "./treeToo";
 import general from "./general";
 import localDataset from "./localDataset";
+// import localMetaData from "./localMetaData";
 
 const rootReducer = combineReducers({
   metadata,

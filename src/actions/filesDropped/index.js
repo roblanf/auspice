@@ -18,7 +18,7 @@ const handleFilesDropped = (files) => (dispatch, getState) => {
   }
 
   const file = files[0];
-  if (file.name == "custom_data.csv") {
+  if (file.name == "custom_data.csv" || file.name == "custom_data.tsv") {
     console.log("file.name: " + file.name)
     return handleLocalMetadata(dispatch, getState, file);
     // return dispatch(successNotification({

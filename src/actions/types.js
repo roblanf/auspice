@@ -54,3 +54,5 @@ export const TOGGLE_LEGEND = "TOGGLE_LEGEND";
 
 // New types
 export const UPLOAD_LOCAL_CSV = "UPLOAD_LOCAL_CSV";
+export const SAVE_LOCAL_CSV = "SAVE_LOCAL_CSV";
+export const SELECT_LOCAL_CSV = "SELECT_LOCAL_CSV";
