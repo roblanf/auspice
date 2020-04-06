@@ -9,6 +9,7 @@ import notifications from "./notifications";
 import narrative from "./narrative";
 import treeToo from "./treeToo";
 import general from "./general";
+import localDataset from "./localDataset";
 
 const rootReducer = combineReducers({
   metadata,
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   notifications,
   narrative,
   treeToo,
-  general
+  general,
+  localDataset
 });
 
 export default rootReducer;

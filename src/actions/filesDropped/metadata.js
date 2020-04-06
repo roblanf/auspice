@@ -82,7 +82,7 @@ const handleMetadata = async (dispatch, getState, file) => {
   });
   dispatch({type: ADD_COLOR_BYS, newColorings, strains: strainsToProcess, traits: dataToProcess});
   return dispatch(successNotification({
-    message: "Adding metadata from " + file.name,
+    message: "Adding  from " + file.name,
     details: `${newColorByNames.length} new field${newColorByNames.length > 1 ? "s" : ""} for ${strainsToProcess.size} node${strainsToProcess.size > 1 ? "s" : ""}`
   }));
 };
