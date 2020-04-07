@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import { connect } from "react-redux";
-import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
+// import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
+import { toggleReadOnly, onBeforeHotChange } from "../../actions/localDataHandsontable";
 
 // import {selectLocalData} from "../../actions/localDataset";
 // import {handleLocalMetadata} from "../../actions/filesDropped/localMetadata";
@@ -20,7 +21,7 @@ import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types"
 class localDataset extends React.Component {
   constructor(props) {
     super(props);
-    this.toggleReadOnly = this.toggleReadOnly.bind(this);
+    this.toggleReadOnly = toggleReadOnly.bind(this);
     this.hotTableComponent = React.createRef();
   }
   static propTypes = {
@@ -42,24 +43,25 @@ class localDataset extends React.Component {
     return this.props.localDataHandsontable;
   }
 
-  onBeforeHotChange(changes, source) {
-    this.props.dispatch({
-      type: HANDSON_UPDATE_DATA,
-      dataChanges: changes
-    });
-  }
+  // onBeforeHotChange(changes, source) {
+  //   this.props.dispatch({
+  //     type: HANDSON_UPDATE_DATA,
+  //     dataChanges: changes
+  //   });
+  // }
 
-  toggleReadOnly(event) {
-    this.props.dispatch({
-      type: HANDSON_UPDATE_READONLY,
-      readOnly: event.target.checked
-    });
-  }
+  // toggleReadOnly(event) {
+  //   this.props.dispatch({
+  //     type: HANDSON_UPDATE_READONLY,
+  //     readOnly: event.target.checked
+  //   });
+  // }
 
   updateReduxPreview() {
     // This method serves only as a renderer for the Redux's state dump.
     const previewTable = document.querySelector('#redux-preview table');
     const currentState = this.props.localDataHandsontable;
+    console.log("currentState: ", currentState);
     let newInnerHtml = '<tbody>';
 
     for (const [key, value] of Object.entries(currentState)) {
@@ -85,6 +87,7 @@ class localDataset extends React.Component {
       newInnerHtml += `</td></tr>`;
     }
     newInnerHtml += `</tbody>`;
+    console.log("newInnerHtml: ", newInnerHtml);
 
     previewTable.innerHTML = newInnerHtml;
   }
@@ -110,20 +113,27 @@ class localDataset extends React.Component {
       //     {this.createListItems()}
       //   </ul>
       // </div>
+      // className="redux-example-container"
+      // id="example-container"
+      // id="example-preview" className="hot"
       <div>
-        <div id="example-preview" className="hot">
-          <div id="toggle-boxes">
+        <div>
+          <div>
+            <div id="toggle-boxes">
+              <br/>
+              <input onClick={this.props.dispatch(toggleReadOnly)} id="readOnlyCheck" type="checkbox"/><label
+                htmlFor="readOnlyCheck"
+              > Toggle <code>readOnly</code> for the entire table</label>
+            </div>
             <br/>
-            <input onClick={this.toggleReadOnly} id="readOnlyCheck" type="checkbox"/><label
-              htmlFor="readOnlyCheck"
-            > Toggle <code>readOnly</code> for the entire table</label>
+            {/* beforeChange={this.props.dispatch(onBeforeHotChange)} settings={this.reduxHotSettings} */}
+            <HotTable ref={this.hotTableComponent}/>
           </div>
-          <br/>
-          <HotTable ref={this.hotTableComponent} beforeChange={this.onBeforeHotChange} settings={this.reduxHotSettings}/>
-        </div>
-        <div id="redux-preview" className="table-container">
-          <h4>Redux store dump:</h4>
-          <table />
+          <div id="redux-preview" className="table-container">
+            <h4>Redux store dump:</h4>
+            <table>
+            </table>
+          </div>
         </div>
       </div>
     );

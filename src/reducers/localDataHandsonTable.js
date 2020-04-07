@@ -14,6 +14,7 @@ const localDataHandsontable = (state= {
   switch (action.type) {
     case types.HANDSON_UPDATE_DATA: {
       const newData = state.data.slice(0);
+      console.log("action.dataChanges: ", action.dataChanges);
       for (let[row, column, oldValue, newValue] of action.dataChanges) {
         newData[row][column] = newValue;
       }
