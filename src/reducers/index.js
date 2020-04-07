@@ -10,6 +10,7 @@ import narrative from "./narrative";
 import treeToo from "./treeToo";
 import general from "./general";
 import localDataset from "./localDataset";
+import localDataHandsontable from "./localDataHandsonTable";
 // import localMetaData from "./localMetaData";
 
 const rootReducer = combineReducers({
@@ -23,7 +24,8 @@ const rootReducer = combineReducers({
   narrative,
   treeToo,
   general,
-  localDataset
+  localDataset,
+  localDataHandsontable
 });
 
 export default rootReducer;

@@ -148,7 +148,7 @@ class Main extends React.Component {
             </Suspense>) :
             null
           }
-          <LocalDataset/>
+          {/* <LocalDataset/> */}
           {this.props.displayNarrative|| this.props.showOnlyPanels ? null : <Footer width={calcUsableWidth(availableWidth, 1)} />}
           {this.props.displayNarrative && this.props.panelsToDisplay.includes("EXPERIMENTAL_MainDisplayMarkdown") ?
             <MainDisplayMarkdown width={calcUsableWidth(availableWidth, 1)}/> :
