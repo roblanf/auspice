@@ -3,9 +3,9 @@ import { UPLOAD_LOCAL_CSV, SAVE_LOCAL_CSV } from "../types";
 import {parseCsv} from "./parseCsv";
 
 const handleLocalMetadata = async (dispatch, getState, file) => {
-  let csvData, errors, csvMeta;
+  let data, errors, csvMeta;
   try {
-    ({data: csvData, errors, meta: csvMeta} = await parseCsv(file));
+    ({data: data, errors, meta: csvMeta} = await parseCsv(file));
     if (errors.length) {
       console.error(errors);
       throw new Error(errors.map((e) => e.message).join(", "));
@@ -24,8 +24,8 @@ const handleLocalMetadata = async (dispatch, getState, file) => {
   //   console.log(d);
   // });
 
-  // console.log("csvData: ", csvData);
-  dispatch({type: SAVE_LOCAL_CSV, csvData});
+  console.log("trigger update csvData: ", data);
+  dispatch({type: SAVE_LOCAL_CSV, data});
   return dispatch(successNotification({
     message: "Adding local csv metadata from " + file.name,
     details: "New local csv metadata is added"
