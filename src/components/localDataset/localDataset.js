@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import { connect } from "react-redux";
-// import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
+import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
 import { toggleReadOnly, onBeforeHotChange } from "../../actions/localDataHandsontable";
 
 // import {selectLocalData} from "../../actions/localDataset";
@@ -23,6 +23,8 @@ class localDataset extends React.Component {
     super(props);
     this.toggleReadOnly = toggleReadOnly.bind(this);
     this.hotTableComponent = React.createRef();
+
+    // console.log("this.toggleReadOnly: ", this.toggleReadOnly);
   }
   static propTypes = {
     csvData: PropTypes.array.isRequired,
@@ -35,9 +37,9 @@ class localDataset extends React.Component {
     dispatch: PropTypes.func.isRequired
   };
 
-  componentDidMount() {
-    this.updateReduxPreview();
-  }
+  // componentDidMount() {
+  //   this.updateReduxPreview();
+  // }
 
   get reduxHotSettings() {
     return this.props.localDataHandsontable;
@@ -57,40 +59,55 @@ class localDataset extends React.Component {
   //   });
   // }
 
-  updateReduxPreview() {
-    // This method serves only as a renderer for the Redux's state dump.
-    const previewTable = document.querySelector('#redux-preview table');
-    const currentState = this.props.localDataHandsontable;
-    console.log("currentState: ", currentState);
-    let newInnerHtml = '<tbody>';
-
-    for (const [key, value] of Object.entries(currentState)) {
-      newInnerHtml += `<tr><td>`;
-
-      if (key === 'data' && Array.isArray(value)) {
-        newInnerHtml += `<strong>data:</strong> <br><table style="border: 1px solid #d6d6d6;"><tbody>`;
-
-        for (let row of value) {
-          newInnerHtml += `<tr>`;
-
-          for (let cell of row) {
-            newInnerHtml += `<td>${cell}</td>`;
-          }
-
-          newInnerHtml += `</tr>`;
-        }
-        newInnerHtml += `</tbody></table>`;
-
-      } else {
-        newInnerHtml += `<strong>${key}:</strong> ${value}`;
-      }
-      newInnerHtml += `</td></tr>`;
-    }
-    newInnerHtml += `</tbody>`;
-    console.log("newInnerHtml: ", newInnerHtml);
-
-    previewTable.innerHTML = newInnerHtml;
+  toggleReadOnly(event) {
+    this.props.dispatch({
+      type: HANDSON_UPDATE_READONLY,
+      readOnly: event.target.checked
+    });
   }
+
+  onBeforeHotChange(changes, source) {
+    this.props.dispatch({
+      type: HANDSON_UPDATE_DATA,
+      dataChanges: changes
+    });
+    return false;
+  }
+
+  // updateReduxPreview() {
+  //   // This method serves only as a renderer for the Redux's state dump.
+  //   const previewTable = document.querySelector('#redux-preview table');
+  //   const currentState = this.props.localDataHandsontable;
+  //   // console.log("currentState: ", currentState);
+  //   let newInnerHtml = '<tbody>';
+
+  //   for (const [key, value] of Object.entries(currentState)) {
+  //     newInnerHtml += `<tr><td>`;
+
+  //     if (key === 'data' && Array.isArray(value)) {
+  //       newInnerHtml += `<strong>data:</strong> <br><table style="border: 1px solid #d6d6d6;"><tbody>`;
+
+  //       for (let row of value) {
+  //         newInnerHtml += `<tr>`;
+
+  //         for (let cell of row) {
+  //           newInnerHtml += `<td>${cell}</td>`;
+  //         }
+
+  //         newInnerHtml += `</tr>`;
+  //       }
+  //       newInnerHtml += `</tbody></table>`;
+
+  //     } else {
+  //       newInnerHtml += `<strong>${key}:</strong> ${value}`;
+  //     }
+  //     newInnerHtml += `</td></tr>`;
+  //   }
+  //   newInnerHtml += `</tbody>`;
+  //   // console.log("newInnerHtml: ", newInnerHtml);
+
+  //   previewTable.innerHTML = newInnerHtml;
+  // }
 
   createListItems() {
     console.log("this.props.csvData: ", this.props.csvData);
@@ -107,36 +124,46 @@ class localDataset extends React.Component {
   // onClick={() => this.props.dispatch(selectLocalData(selectItem))}
   render() {
     return (
-      // <div>
-      //   <h1> localDataset!!!  </h1>
-      //   <ul>
-      //     {this.createListItems()}
-      //   </ul>
-      // </div>
-      // className="redux-example-container"
-      // id="example-container"
-      // id="example-preview" className="hot"
       <div>
-        <div>
-          <div>
-            <div id="toggle-boxes">
-              <br/>
-              <input onClick={this.props.dispatch(toggleReadOnly)} id="readOnlyCheck" type="checkbox"/><label
-                htmlFor="readOnlyCheck"
-              > Toggle <code>readOnly</code> for the entire table</label>
-            </div>
-            <br/>
-            {/* beforeChange={this.props.dispatch(onBeforeHotChange)} settings={this.reduxHotSettings} */}
-            <HotTable ref={this.hotTableComponent}/>
-          </div>
-          <div id="redux-preview" className="table-container">
-            <h4>Redux store dump:</h4>
-            <table>
-            </table>
-          </div>
-        </div>
+        <script src="https://cdn.jsdelivr.net/npm/handsontable@7.4.2/dist/handsontable.full.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/handsontable@7.4.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen"></link>
+        <HotTable
+          id="hot"
+          data={this.props.data}
+          colHeaders={true}
+          rowHeaders={true}
+          licenseKey='non-commercial-and-evaluation'
+        />
       </div>
     );
+    // return (
+    //   // <div>
+    //   //   <h1> localDataset!!!  </h1>
+    //   //   <ul>
+    //   //     {this.createListItems()}
+    //   //   </ul>
+    //   // </div>
+    //   <div className="redux-example-container">
+    //     <div id="example-container">
+    //       <div id="example-preview" className="hot">
+    //         <div id="toggle-boxes">
+    //           <br/>
+    //           <input onClick={this.toggleReadOnly} id="readOnlyCheck" type="checkbox"/><label
+    //             htmlFor="readOnlyCheck"
+    //           > Toggle <code>readOnly</code> for the entire table</label>
+    //         </div>
+    //         <br/>
+    //         {/* beforeChange={this.onBeforeHotChange} */}
+    //         <HotTable ref={this.hotTableComponent} settings={this.reduxHotSettings} licenseKey='non-commercial-and-evaluation'/>
+    //       </div>
+    //       <div id="redux-preview" className="table-container">
+    //         <h4>Redux store dump:</h4>
+    //         <table>
+    //         </table>
+    //       </div>
+    //     </div>
+    //   </div>
+    // );
   }
 }
 

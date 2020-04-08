@@ -40,13 +40,14 @@ export const onBeforeHotChange = (changes, source) => (dispatch, getState) => {
   return false;
 };
 
-export const toggleReadOnly = (event) => (dispatch, getState) => {
-  dispatch({
-    type: HANDSON_UPDATE_READONLY,
-    readOnly: event.target.checked
-  });
+export const toggleReadOnly = (event) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: HANDSON_UPDATE_READONLY,
+      readOnly: event.target.checked
+    });
+  };
 };
-
 
 // export default handleLocalDataHandsontable;
 

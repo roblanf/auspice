@@ -6,11 +6,12 @@ import Handsontable from 'handsontable';
 import * as types from "../actions/types";
 
 const localDataHandsontable = (state= {
-  data: Handsontable.helper.createSpreadsheetData(5, 3),
+  data: Handsontable.helper.createSpreadsheetData(6, 10),
   colHeaders: true,
   rowHeaders: true,
   readOnly: false
 }, action) => {
+//   console.log("Action Reducer: ");
   switch (action.type) {
     case types.HANDSON_UPDATE_DATA: {
       const newData = state.data.slice(0);
@@ -23,6 +24,7 @@ const localDataHandsontable = (state= {
       });
     }
     case types.HANDSON_UPDATE_READONLY: {
+    //   console.log("Reducer: ", types.HANDSON_UPDATE_READONLY);
       return Object.assign({}, state, {
         readOnly: action.readOnly
       });
