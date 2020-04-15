@@ -17,10 +17,6 @@ import TableRow from '@material-ui/core/TableRow';
 // import {handleLocalMetadata} from "../../actions/filesDropped/localMetadata";
 
 // eslint-disable-next-line no-unused-vars
-
-// Strain	Age	Clade	Country	Admin Division	genbank_accession	
-// gisaid_epi_isl	Host	Location	Originating Lab	Submission 
-// Date	Region	Sex	Submitting Lab	url	Collection Data	Author
 const columns = [
   { id: 'Strain', label: 'Strain', minWidth: 100 },
   { id: 'Age', label: 'Age', minWidth: 30 },
@@ -39,7 +35,6 @@ const columns = [
   { id: 'url', label: 'Url', minWidth: 30 },
   { id: 'Collection Data', label: 'Collection Data', minWidth: 30 },
   { id: 'Author', label: 'Author', minWidth: 50 }
-
   // { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
   // {
   //   id: 'population',
@@ -62,29 +57,6 @@ const columns = [
   //   align: 'right',
   //   format: (value) => value.toFixed(2)
   // }
-];
-
-function createData(name, code, population, size) {
-  const density = population / size;
-  return { name, code, population, size, density };
-}
-
-const rows = [
-  createData('India', 'IN', 1324171354, 3287263),
-  createData('China', 'CN', 1403500365, 9596961),
-  createData('Italy', 'IT', 60483973, 301340),
-  createData('United States', 'US', 327167434, 9833520),
-  createData('Canada', 'CA', 37602103, 9984670),
-  createData('Australia', 'AU', 25475400, 7692024),
-  createData('Germany', 'DE', 83019200, 357578),
-  createData('Ireland', 'IE', 4857000, 70273),
-  createData('Mexico', 'MX', 126577691, 1972550),
-  createData('Japan', 'JP', 126317000, 377973),
-  createData('France', 'FR', 67022000, 640679),
-  createData('United Kingdom', 'GB', 67545757, 242495),
-  createData('Russia', 'RU', 146793744, 17098246),
-  createData('Nigeria', 'NG', 200962417, 923768),
-  createData('Brazil', 'BR', 210147125, 8515767),
 ];
 
 const styles = theme => ({
@@ -120,13 +92,30 @@ class localDataset extends React.Component {
     classes: PropTypes.object.isRequired
   };
 
-  // componentDidMount() {
-  //   this.updateReduxPreview();
-  // }
+  descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
 
-  get reduxHotSettings() {
-    console.log("this.props.localDataHandsontable: ", this.props.localDataHandsontable);
-    return this.props.localDataHandsontable;
+  getComparator(order, orderBy) {
+    return order === 'desc'
+      ? (a, b) => this.descendingComparator(a, b, orderBy)
+      : (a, b) => -this.descendingComparator(a, b, orderBy);
+  }
+
+  stableSort(array, comparator) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
   }
 
   toggleReadOnly(event) {
@@ -215,21 +204,36 @@ class localDataset extends React.Component {
   // onClick={() => this.props.dispatch(selectLocalData(selectItem))}
   render() {
     const { classes } = this.props;
+    // if (this.props.data.length === 0) {
+    //   let headRow = columns.map((column) => (
+    //     <TableCell
+    //       key={column.id}
+    //       align={column.align}
+    //       style={{ minWidth: column.minWidth }}
+    //     >
+    //       {column.label}
+    //     </TableCell>
+    //   ));
+    // } else {
+    //   let headRow = null;
+    // }
     return (
       <Paper className={classes.root} >
         <TableContainer className={classes.container} >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                  >
-                    {column.label}
-                  </TableCell>
-                ))}
+                {this.props.data.length !== 0 &&
+                  columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ))
+                }
               </TableRow>
             </TableHead>
             <TableBody>
@@ -250,6 +254,7 @@ class localDataset extends React.Component {
             </TableBody>
           </Table>
         </TableContainer>
+        {this.props.data.length !== 0 && 
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
@@ -259,6 +264,7 @@ class localDataset extends React.Component {
           onChangePage={this.handleChangePage}
           onChangeRowsPerPage={this.handleChangeRowsPerPage}
         />
+        }
       </Paper>
     );
   }

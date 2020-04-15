@@ -130,7 +130,6 @@ class Main extends React.Component {
           navBarHandler={this.toggleSidebar}
         />
         <PanelsContainer width={availableWidth} height={availableHeight} left={this.props.sidebarOpen ? sidebarWidth : 0}>
-          <LocalDataset/>
           {this.props.narrativeIsLoaded && !this.props.panelsToDisplay.includes("EXPERIMENTAL_MainDisplayMarkdown") ?
             renderNarrativeToggle(this.props.dispatch, this.props.displayNarrative) : null
           }
@@ -149,6 +148,7 @@ class Main extends React.Component {
             </Suspense>) :
             null
           }
+          <LocalDataset/>
           {this.props.displayNarrative|| this.props.showOnlyPanels ? null : <Footer width={calcUsableWidth(availableWidth, 1)} />}
           {this.props.displayNarrative && this.props.panelsToDisplay.includes("EXPERIMENTAL_MainDisplayMarkdown") ?
             <MainDisplayMarkdown width={calcUsableWidth(availableWidth, 1)}/> :
