@@ -8,12 +8,23 @@ import * as types from "../actions/types";
 const localDataHandsontable = (state= {
 //   data: Handsontable.helper.createSpreadsheetData(6, 10),
   data: [],
-  colHeaders: true,
-  rowHeaders: true,
-  readOnly: false
+  page: 0,
+  rowsPerPage: 5
 }, action) => {
 //   console.log("Action Reducer: ");
   switch (action.type) {
+    case types.CHANGE_TABLE_PAGE: {
+      return Object.assign({}, state, {
+        page: action.page
+      });
+    }
+    case types.CHANGE_TABLE_ROWSPERPAGE: {
+      return Object.assign({}, state, {
+        rowsPerPage: action.rowsPerPage
+      });
+    }
+
+    
     case types.SAVE_LOCAL_CSV: {
     //   console.log("action.csvData: ", action.csvData);
       return Object.assign({}, state, {
