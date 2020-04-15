@@ -17,30 +17,51 @@ import TableRow from '@material-ui/core/TableRow';
 // import {handleLocalMetadata} from "../../actions/filesDropped/localMetadata";
 
 // eslint-disable-next-line no-unused-vars
+
+// Strain	Age	Clade	Country	Admin Division	genbank_accession	
+// gisaid_epi_isl	Host	Location	Originating Lab	Submission 
+// Date	Region	Sex	Submitting Lab	url	Collection Data	Author
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
-  {
-    id: 'population',
-    label: 'Population',
-    minWidth: 170,
-    align: 'right',
-    format: (value) => value.toLocaleString()
-  },
-  {
-    id: 'size',
-    label: 'Size\u00a0(km\u00b2)',
-    minWidth: 170,
-    align: 'right',
-    format: (value) => value.toLocaleString()
-  },
-  {
-    id: 'density',
-    label: 'Density',
-    minWidth: 170,
-    align: 'right',
-    format: (value) => value.toFixed(2)
-  }
+  { id: 'Strain', label: 'Strain', minWidth: 100 },
+  { id: 'Age', label: 'Age', minWidth: 30 },
+  { id: 'Clade', label: 'Clade', minWidth: 30 },
+  { id: 'Country', label: 'Country', minWidth: 30 },
+  { id: 'Admin Division', label: 'Admin Division', minWidth: 30 },
+  { id: 'genbank_accession', label: 'Genbank_accession', minWidth: 50 },
+  { id: 'gisaid_epi_isl', label: 'Gisaid_epi_isl', minWidth: 50 },
+  { id: 'Host', label: 'Host', minWidth: 30 },
+  { id: 'Location', label: 'Location', minWidth: 30 },
+  { id: 'Originating Lab', label: 'Originating Lab', minWidth: 100 },
+  { id: 'Submission Date', label: 'Submission Date', minWidth: 30 },
+  { id: 'Region', label: 'Region', minWidth: 30 },
+  { id: 'Sex', label: 'Sex', minWidth: 30 },
+  { id: 'Submitting Lab', label: 'Submitting Lab', minWidth: 100 },
+  { id: 'url', label: 'Url', minWidth: 30 },
+  { id: 'Collection Data', label: 'Collection Data', minWidth: 30 },
+  { id: 'Author', label: 'Author', minWidth: 50 }
+
+  // { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
+  // {
+  //   id: 'population',
+  //   label: 'Population',
+  //   minWidth: 170,
+  //   align: 'right',
+  //   format: (value) => value.toLocaleString()
+  // },
+  // {
+  //   id: 'size',
+  //   label: 'Size\u00a0(km\u00b2)',
+  //   minWidth: 170,
+  //   align: 'right',
+  //   format: (value) => value.toLocaleString()
+  // },
+  // {
+  //   id: 'density',
+  //   label: 'Density',
+  //   minWidth: 170,
+  //   align: 'right',
+  //   format: (value) => value.toFixed(2)
+  // }
 ];
 
 function createData(name, code, population, size) {
@@ -145,7 +166,6 @@ class localDataset extends React.Component {
     });
   };
 
-
   // updateReduxPreview() {
   //   // This method serves only as a renderer for the Redux's state dump.
   //   const previewTable = document.querySelector('#redux-preview table');
@@ -213,7 +233,7 @@ class localDataset extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage).map((row) => {
+              {this.props.data.slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage).map((row) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                     {columns.map((column) => {
@@ -233,7 +253,7 @@ class localDataset extends React.Component {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={rows.length}
+          count={this.props.data.length}
           rowsPerPage={this.props.rowsPerPage}
           page={this.props.page}
           onChangePage={this.handleChangePage}
