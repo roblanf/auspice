@@ -9,7 +9,8 @@ const localDataHandsontable = (state= {
 //   data: Handsontable.helper.createSpreadsheetData(6, 10),
   data: [],
   page: 0,
-  rowsPerPage: 5
+  rowsPerPage: 5,
+  dense: false
 }, action) => {
 //   console.log("Action Reducer: ");
   switch (action.type) {
@@ -24,7 +25,12 @@ const localDataHandsontable = (state= {
       });
     }
 
-    
+    case types.CHANGE_TABLE_DENSE: {
+      return Object.assign({}, state, {
+        dense: action.dense
+      });
+    }
+
     case types.SAVE_LOCAL_CSV: {
     //   console.log("action.csvData: ", action.csvData);
       return Object.assign({}, state, {

@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import { connect } from "react-redux";
 import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
-import {CHANGE_TABLE_PAGE, CHANGE_TABLE_ROWSPERPAGE} from "../../actions/types";
-import { withStyles } from '@material-ui/core/styles';
+import {CHANGE_TABLE_DENSE, CHANGE_TABLE_PAGE, CHANGE_TABLE_ROWSPERPAGE} from "../../actions/types";
+import { lighten, withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import Checkbox from '@material-ui/core/Checkbox';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,6 +14,9 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 // import {selectLocalData} from "../../actions/localDataset";
 // import {handleLocalMetadata} from "../../actions/filesDropped/localMetadata";
 
@@ -27,11 +31,11 @@ const columns = [
   { id: 'gisaid_epi_isl', label: 'Gisaid_epi_isl', minWidth: 50 },
   { id: 'Host', label: 'Host', minWidth: 30 },
   { id: 'Location', label: 'Location', minWidth: 30 },
-  { id: 'Originating Lab', label: 'Originating Lab', minWidth: 100 },
+  { id: 'Originating Lab', label: 'Originating Lab', minWidth: 140 },
   { id: 'Submission Date', label: 'Submission Date', minWidth: 30 },
   { id: 'Region', label: 'Region', minWidth: 30 },
   { id: 'Sex', label: 'Sex', minWidth: 30 },
-  { id: 'Submitting Lab', label: 'Submitting Lab', minWidth: 100 },
+  { id: 'Submitting Lab', label: 'Submitting Lab', minWidth: 140 },
   { id: 'url', label: 'Url', minWidth: 30 },
   { id: 'Collection Data', label: 'Collection Data', minWidth: 30 },
   { id: 'Author', label: 'Author', minWidth: 50 }
@@ -59,12 +63,23 @@ const columns = [
   // }
 ];
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: '100%'
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(1),
   },
-  container: {
-    maxHeight: 440
+  highlight:
+    theme.palette.type === 'light'
+      ? {
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
+      : {
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark
+      },
+  title: {
+    flex: '1 1 100%'
   }
 });
 
@@ -74,7 +89,8 @@ const styles = theme => ({
     data: state.localDataHandsontable.data,
     localDataHandsontable: state.localDataHandsontable,
     page: state.localDataHandsontable.page,
-    rowsPerPage: state.localDataHandsontable.rowsPerPage
+    rowsPerPage: state.localDataHandsontable.rowsPerPage,
+    dense: state.localDataHandsontable.dense
   };
 })
 class localDataset extends React.Component {
@@ -89,7 +105,10 @@ class localDataset extends React.Component {
     page: PropTypes.number.isRequired,
     rowsPerPage: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
-    classes: PropTypes.object.isRequired
+    classes: PropTypes.object.isRequired,
+    // onRequestSort: PropTypes.func.isRequired,
+    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
+    orderBy: PropTypes.string.isRequired
   };
 
   descendingComparator(a, b, orderBy) {
@@ -133,6 +152,13 @@ class localDataset extends React.Component {
     });
     return false;
   }
+
+  handleChangeDense = (event) => {
+    this.props.dispatch({
+      type: CHANGE_TABLE_DENSE,
+      page: event.target.checked
+    });
+  };
 
   handleChangePage = (event, newPage) => {
     // this.setState({count: newPage});
@@ -203,7 +229,11 @@ class localDataset extends React.Component {
 
   // onClick={() => this.props.dispatch(selectLocalData(selectItem))}
   render() {
-    const { classes } = this.props;
+    const { classes, order, orderBy} = this.props;
+    const createSortHandler = (property) => (event) => {
+      this.onRequestSort(event, property);
+    };
+    const emptyRows = this.props.rowsPerPage - Math.min(this.props.rowsPerPage, this.props.data.length - this.props.page * this.props.rowsPerPage);
     // if (this.props.data.length === 0) {
     //   let headRow = columns.map((column) => (
     //     <TableCell
@@ -218,56 +248,120 @@ class localDataset extends React.Component {
     //   let headRow = null;
     // }
     return (
-      <Paper className={classes.root} >
-        <TableContainer className={classes.container} >
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {this.props.data.length !== 0 &&
-                  columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      style={{ minWidth: column.minWidth }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))
-                }
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {this.props.data.slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage).map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === 'number' ? column.format(value) : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {this.props.data.length !== 0 && 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 100]}
-          component="div"
-          count={this.props.data.length}
-          rowsPerPage={this.props.rowsPerPage}
-          page={this.props.page}
-          onChangePage={this.handleChangePage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-        />
-        }
-      </Paper>
+      <div className={classes.root}>
+        <Paper className={classes.root} >
+          <TableContainer className={classes.container} >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {this.props.data.length !== 0 &&
+                    columns.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        style={{ minWidth: column.minWidth }}
+                      >
+                        {column.label}
+                      </TableCell>
+                    ))
+                  }
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {this.props.data.slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage).map((row) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.format && typeof value === 'number' ? column.format(value) : value}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>  
+            </Table>
+          </TableContainer>
+          {this.props.data.length !== 0 &&
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 100]}
+              component="div"
+              count={this.props.data.length}
+              rowsPerPage={this.props.rowsPerPage}
+              page={this.props.page}
+              onChangePage={this.handleChangePage}
+              onChangeRowsPerPage={this.handleChangeRowsPerPage}
+            />
+          }
+        </Paper>
+      </div>
     );
   }
 }
 
 export default withStyles(styles)(localDataset);
+
+
+{/* {this.props.data.length !== 0 && columns.map((headCell) => (
+                  <TableCell
+                    key={headCell.id}
+                    align={headCell.numeric ? 'right' : 'left'}
+                    padding={headCell.disablePadding ? 'none' : 'default'}
+                    sortDirection={orderBy === headCell.id ? order : false}
+                  >
+                    <TableSortLabel
+                      active={orderBy === headCell.id}
+                      direction={orderBy === headCell.id ? order : 'asc'}
+                      onClick={createSortHandler(headCell.id)}
+                    >
+                      {headCell.label}
+                      {orderBy === headCell.id ? (
+                        <span className={classes.visuallyHidden}>
+                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                        </span>
+                      ) : null}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
+              </TableHead> */}
+
+{/* <TableBody>
+                {this.stableSort(this.props.data, this.getComparator(order, orderBy))
+                  .slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage)
+                  .map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow
+                        hover
+                        tabIndex={-1}
+                        key={row.name}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            inputProps={{ 'aria-labelledby': labelId }}
+                          />
+                        </TableCell>
+                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                          {row.name}
+                        </TableCell>
+                        <TableCell align="right">{row.calories}</TableCell>
+                        <TableCell align="right">{row.fat}</TableCell>
+                        <TableCell align="right">{row.carbs}</TableCell>
+                        <TableCell align="right">{row.protein}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: (this.props.dense ? 33 : 53) * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody> */}
+
+   {/* <FormControlLabel
+          control={<Switch checked={this.props.dense} onChange={this.handleChangeDense} />}
+          label="Dense padding"
+        /> */}
