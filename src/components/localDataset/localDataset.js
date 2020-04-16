@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import { connect } from "react-redux";
 import {HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY} from "../../actions/types";
-import {CHANGE_TABLE_DENSE, CHANGE_TABLE_PAGE, CHANGE_TABLE_ROWSPERPAGE} from "../../actions/types";
+import {CHANGE_TABLE_ORDER, CHANGE_TABLE_ORDERBY, CHANGE_TABLE_DENSE, CHANGE_TABLE_PAGE, CHANGE_TABLE_ROWSPERPAGE} from "../../actions/types";
 import { lighten, withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -66,7 +66,7 @@ const columns = [
 const styles = (theme) => ({
   root: {
     paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(1),
+    paddingRight: theme.spacing(1)
   },
   highlight:
     theme.palette.type === 'light'
@@ -90,7 +90,9 @@ const styles = (theme) => ({
     localDataHandsontable: state.localDataHandsontable,
     page: state.localDataHandsontable.page,
     rowsPerPage: state.localDataHandsontable.rowsPerPage,
-    dense: state.localDataHandsontable.dense
+    dense: state.localDataHandsontable.dense,
+    order: state.localDataHandsontable.order,
+    orderBy: state.localDataHandsontable.orderBy
   };
 })
 class localDataset extends React.Component {
@@ -106,7 +108,6 @@ class localDataset extends React.Component {
     rowsPerPage: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired,
-    // onRequestSort: PropTypes.func.isRequired,
     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
     orderBy: PropTypes.string.isRequired
   };
@@ -153,10 +154,23 @@ class localDataset extends React.Component {
     return false;
   }
 
+  handleRequestSort = (event, property) => {
+    const isAsc = this.props.orderBy === property && this.props.order === 'asc';
+    this.props.dispatch({
+      type: CHANGE_TABLE_ORDER,
+      order: isAsc ? 'desc' : 'asc'
+    });
+    this.props.dispatch({
+      type: CHANGE_TABLE_ORDERBY,
+      orderBy: property
+    });
+  };
+
   handleChangeDense = (event) => {
+    console.log("Trigger!!");
     this.props.dispatch({
       type: CHANGE_TABLE_DENSE,
-      page: event.target.checked
+      dense: event.target.checked
     });
   };
 
@@ -226,48 +240,49 @@ class localDataset extends React.Component {
     );
   }
 
-
   // onClick={() => this.props.dispatch(selectLocalData(selectItem))}
   render() {
     const { classes, order, orderBy} = this.props;
-    const createSortHandler = (property) => (event) => {
-      this.onRequestSort(event, property);
-    };
     const emptyRows = this.props.rowsPerPage - Math.min(this.props.rowsPerPage, this.props.data.length - this.props.page * this.props.rowsPerPage);
-    // if (this.props.data.length === 0) {
-    //   let headRow = columns.map((column) => (
-    //     <TableCell
-    //       key={column.id}
-    //       align={column.align}
-    //       style={{ minWidth: column.minWidth }}
-    //     >
-    //       {column.label}
-    //     </TableCell>
-    //   ));
-    // } else {
-    //   let headRow = null;
-    // }
+    const createSortHandler = (property) => (event) => {
+      this.handleRequestSort(event, property);
+    };
     return (
       <div className={classes.root}>
-        <Paper className={classes.root} >
+        {this.props.data.length !== 0 &&
+        <Paper className={classes.paper} >
           <TableContainer className={classes.container} >
-            <Table stickyHeader aria-label="sticky table">
+            {/* <Table stickyHeader aria-label="sticky table"> */}
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              size={this.props.dense ? 'small' : 'medium'}
+              aria-label="enhanced table"
+            >
               <TableHead>
-                <TableRow>
-                  {this.props.data.length !== 0 &&
-                    columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))
-                  }
-                </TableRow>
+                {this.props.data.length !== 0 && columns.map((headCell) => (
+                  <TableCell
+                    key={headCell.id}
+                    align={headCell.numeric ? 'right' : 'left'}
+                    padding={headCell.disablePadding ? 'none' : 'default'}
+                    sortDirection={orderBy === headCell.id ? order : false}
+                  >
+                    <TableSortLabel
+                      active={orderBy === headCell.id}
+                      direction={orderBy === headCell.id ? order : 'asc'}
+                      onClick={createSortHandler(headCell.id)}
+                    >
+                      <h2>{headCell.label}</h2>
+                      {orderBy === headCell.id ? (
+                        <span className={classes.visuallyHidden}>
+                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                        </span>
+                      ) : null}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
               </TableHead>
-              <TableBody>
+              {/* <TableBody>
                 {this.props.data.slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage).map((row) => {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
@@ -282,75 +297,37 @@ class localDataset extends React.Component {
                     </TableRow>
                   );
                 })}
-              </TableBody>  
-            </Table>
-          </TableContainer>
-          {this.props.data.length !== 0 &&
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, 100]}
-              component="div"
-              count={this.props.data.length}
-              rowsPerPage={this.props.rowsPerPage}
-              page={this.props.page}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            />
-          }
-        </Paper>
-      </div>
-    );
-  }
-}
-
-export default withStyles(styles)(localDataset);
-
-
-{/* {this.props.data.length !== 0 && columns.map((headCell) => (
-                  <TableCell
-                    key={headCell.id}
-                    align={headCell.numeric ? 'right' : 'left'}
-                    padding={headCell.disablePadding ? 'none' : 'default'}
-                    sortDirection={orderBy === headCell.id ? order : false}
-                  >
-                    <TableSortLabel
-                      active={orderBy === headCell.id}
-                      direction={orderBy === headCell.id ? order : 'asc'}
-                      onClick={createSortHandler(headCell.id)}
-                    >
-                      {headCell.label}
-                      {orderBy === headCell.id ? (
-                        <span className={classes.visuallyHidden}>
-                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                        </span>
-                      ) : null}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableHead> */}
-
-{/* <TableBody>
+              </TableBody> */}
+              <TableBody>
                 {this.stableSort(this.props.data, this.getComparator(order, orderBy))
                   .slice(this.props.page * this.props.rowsPerPage, this.props.page * this.props.rowsPerPage + this.props.rowsPerPage)
                   .map((row, index) => {
-                    const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <TableRow
                         hover
                         tabIndex={-1}
                         key={row.name}
                       >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            inputProps={{ 'aria-labelledby': labelId }}
-                          />
-                        </TableCell>
-                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                        {/* <TableCell component="th" id={labelId} scope="row" padding="none">
                           {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.calories}</TableCell>
-                        <TableCell align="right">{row.fat}</TableCell>
-                        <TableCell align="right">{row.carbs}</TableCell>
-                        <TableCell align="right">{row.protein}</TableCell>
+                        </TableCell> */}
+                        <TableCell align="right">{row['Strain']}</TableCell>
+                        <TableCell align="right">{row['Age']}</TableCell>
+                        <TableCell align="right">{row['Clade']}</TableCell>
+                        <TableCell align="right">{row['Country']}</TableCell>
+                        <TableCell align="right">{row['Admin Division']}</TableCell>
+                        <TableCell align="right">{row['genbank_accession']}</TableCell>
+                        <TableCell align="right">{row['gisaid_epi_isl']}</TableCell>
+                        <TableCell align="right">{row['Host']}</TableCell>
+                        <TableCell align="right">{row['Location']}</TableCell>
+                        <TableCell align="right">{row['Originating Lab']}</TableCell>
+                        <TableCell align="right">{row['Submission Date']}</TableCell>
+                        <TableCell align="right">{row['Region']}</TableCell>
+                        <TableCell align="right">{row['Sex']}</TableCell>
+                        <TableCell align="right">{row['Submitting Lab']}</TableCell>
+                        <TableCell align="right">{row['Url']}</TableCell>
+                        <TableCell align="right">{row['Collection Data']}</TableCell>
+                        <TableCell align="right">{row['Author']}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -359,9 +336,29 @@ export default withStyles(styles)(localDataset);
                     <TableCell colSpan={6} />
                   </TableRow>
                 )}
-              </TableBody> */}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, 100]}
+            component="div"
+            count={this.props.data.length}
+            rowsPerPage={this.props.rowsPerPage}
+            page={this.props.page}
+            onChangePage={this.handleChangePage}
+            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+          />
+        </Paper>
+        }
+        {this.props.data.length !== 0 &&
+          <FormControlLabel
+            control={<Switch checked={this.props.dense} onChange={this.handleChangeDense} />}
+            label="Dense padding"
+          />
+        }
+      </div>
+    );
+  }
+}
 
-   {/* <FormControlLabel
-          control={<Switch checked={this.props.dense} onChange={this.handleChangeDense} />}
-          label="Dense padding"
-        /> */}
+export default withStyles(styles)(localDataset);

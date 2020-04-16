@@ -31,7 +31,6 @@ import { HANDSON_UPDATE_DATA, HANDSON_UPDATE_READONLY } from "./types";
 //   // }));
 // };
 
-
 export const onBeforeHotChange = (changes, source) => (dispatch, getState) => {
   dispatch({
     type: HANDSON_UPDATE_DATA,

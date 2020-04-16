@@ -10,7 +10,9 @@ const localDataHandsontable = (state= {
   data: [],
   page: 0,
   rowsPerPage: 5,
-  dense: false
+  dense: false,
+  order: 'asc',
+  orderBy: 'Strain'
 }, action) => {
 //   console.log("Action Reducer: ");
   switch (action.type) {
@@ -31,6 +33,18 @@ const localDataHandsontable = (state= {
       });
     }
 
+    case types.CHANGE_TABLE_ORDER: {
+      return Object.assign({}, state, {
+        order: action.order
+      });
+    }
+
+    case types.CHANGE_TABLE_ORDERBY: {
+      return Object.assign({}, state, {
+        orderBy: action.orderBy
+      });
+    }
+
     case types.SAVE_LOCAL_CSV: {
     //   console.log("action.csvData: ", action.csvData);
       return Object.assign({}, state, {
@@ -39,7 +53,6 @@ const localDataHandsontable = (state= {
     }
     case types.HANDSON_UPDATE_DATA: {
       const newData = state.data.slice(0);
-      console.log("action.dataChanges: ", action.dataChanges);
       for (let[row, column, oldValue, newValue] of action.dataChanges) {
         newData[row][column] = newValue;
       }
